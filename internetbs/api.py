@@ -79,7 +79,34 @@ class ApiWrapper():
                 return parsed_response
             else:
                 return parsed_response['product'][0]['status'] == 'SUCCESS'
+    
+    def domain_update(self, domain, contact_info, raw=True, **kwargs):
+        """
+        
+        The command is intended to update a domain, including Registrant Contact, Billing Contact, Admin
+        Contact, Tech. Contact, registrar locks status, epp auth info, name servers, private whois status, etc...
+        
+        The command takes exactly the same parameters as domain_create, however only Domain ismandatory, 
+        all other parameters are optional and you can update one or more of them at once.
+        
+        """
+        endpoint = '/Domain/Update'
 
+        params = {
+            'Domain' : domain
+        }
+
+        params.update(contact_info)
+        params.update(kwargs)
+
+        response = self.__perform_get_request(endpoint, params)
+
+        if response.status_code == 200:
+            parsed_response = response.json()
+            if raw:
+                return parsed_response
+            else:
+                return parsed_response['product'][0]['status'] == 'SUCCESS'
     def domain_info(self, domain):
 
         """
@@ -117,6 +144,64 @@ class ApiWrapper():
         """
 
         endpoint = '/Domain/Host/Create'
+
+        params = {
+            'Host' : host,
+            'IP_List' : ",".join(ip_list)
+        }
+
+        response = self.__perform_get_request(endpoint, params)
+
+        if response.status_code == 200:
+            parsed_response = response.json()
+            if raw:
+                return parsed_response
+            else:
+                return parsed_response.get('status') == 'SUCCESS'
+    
+    def host_info(self, host):
+        """
+            The command is intended to retrieve existing host (name server) information for a specific host.
+        """
+
+        endpoint = '/Domain/Host/Info'
+
+        params = {
+            'Host' : host,
+        }
+        
+        response = self.__perform_get_request(endpoint, params)
+
+        if response.status_code == 200:
+            parsed_response = response.json()
+            return parsed_response
+
+    def host_delete(self, host):
+        """
+            The command is intended to delete (remove) an unwanted host. Note if your host is currently used
+            by one or more domains the operation will fail.
+        """
+
+        endpoint = '/Domain/Host/Delete'
+
+        params = {
+            'Host' : host,
+        }
+        
+        response = self.__perform_get_request(endpoint, params)
+
+        if response.status_code == 200:
+            parsed_response = response.json()
+            return parsed_response
+    
+    def host_update(self, host, ip_list, raw=True):
+        """
+            The command is intended to update a host; the command is replacing the current list of IP for the
+            host with the new one you provide. It is accepting the same parameters as host_create and
+            will return the same results.
+        """
+
+        endpoint = '/Domain/Host/Update'
 
         params = {
             'Host' : host,
