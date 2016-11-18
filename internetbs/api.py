@@ -79,3 +79,21 @@ class ApiWrapper():
                 return parsed_response
             else:
                 return parsed_response['product'][0]['status'] == 'SUCCESS'
+
+    def domain_info(self, domain):
+        """
+            The command is intended to return full details about a domain name; it includes contact details,
+            registrar lock status, private whois status, name servers and so on. 
+        """
+        endpoint = '/Domain/Info'
+
+        params = {
+            'Domain' : domain
+        }
+
+        response = self.__perform_get_request(endpoint, params)
+        
+        if response.status_code == 200:
+            parsed_response = response.json()
+            return parsed_response
+
