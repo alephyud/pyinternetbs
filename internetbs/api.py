@@ -5,6 +5,8 @@ class ApiWrapper():
     """
         A simple wrapper for domain registrant internetbs.net
     """
+
+    VALID_DNS_RECORD_TYPES = {'A', 'AAAA', 'DYNAMIC', 'CNAME', 'MX', 'SRV', 'TXT', 'NS'}
     def __init__ (self, key = None, password = None):
         """
             Instantiates a wrapper object. If no key or password are provided, test credentials are used.
@@ -208,6 +210,120 @@ class ApiWrapper():
             'IP_List' : ",".join(ip_list)
         }
 
+        response = self.__perform_get_request(endpoint, params)
+
+        if response.status_code == 200:
+            parsed_response = response.json()
+            if raw:
+                return parsed_response
+            else:
+                return parsed_response.get('status') == 'SUCCESS'
+    
+    def dns_add(self, full_record_name, record_type, value=None, raw=False, **kwargs):
+        """
+            The command is intended to add a new DNS record to a specific zone (domain).
+        """
+
+        endpoint = '/Domain/DnsRecord/Add'
+
+        params = {
+            'FullRecordName' : full_record_name,
+            'Type': record_type,
+        }
+
+        params.update(kwargs)
+
+        if record_type not in VALID_DNS_RECORD_TYPES:
+            raise ValueError("Accepted values for this argument are: A, AAAA, DYNAMIC, CNAME, MX, SRV, TXT and NS")
+
+        if not value and record_type != 'DYNAMIC':
+            raise ValueError("All records except DYNAMIC must have their value")
+        
+        if record_type == 'DYNAMIC':
+            if not kwargs.has_key('DynDnsLogin') or not kwargs.has_key('DynDnsPassword'):
+                raise ValueError('DynDNS login and password are required when record type is DYNAMIC')
+
+        if value:
+            params['Value'] = value
+        
+        response = self.__perform_get_request(endpoint, params)
+
+        if response.status_code == 200:
+            parsed_response = response.json()
+            if raw:
+                return parsed_response
+            else:
+                return parsed_response.get('status') == 'SUCCESS'
+
+    def dns_remove(self, full_record_name, record_type, value=None, raw=False, **kwargs):
+        """
+            The command is intended to remove a DNS record from a specific zone.
+            While the command accepts the same parameters as /Domain/DnsRecord/Add, you only need to pass
+            the credentials (API Key and Password), the FullRecordName and Type, all other parameters are
+            optional and are required only when there is a possibility of ambiguity, example you may have
+            multiple A record for www.example.com for load balancing purposes, consequently you need to pass
+            the Value parameter in order to remove the correct A record. If you do not pass any optional
+            parameter all matching FullRecordName for the specific Type will be removed.
+        """
+
+        endpoint = '/Domain/DnsRecord/Remove'
+
+        params = {
+            'FullRecordName' : full_record_name,
+            'Type': record_type,
+        }
+
+        params.update(kwargs)
+
+        if record_type not in VALID_DNS_RECORD_TYPES:
+            raise ValueError("Accepted values for this argument are: A, AAAA, DYNAMIC, CNAME, MX, SRV, TXT and NS")
+
+        if value:
+            params['Value'] = value
+        
+        response = self.__perform_get_request(endpoint, params)
+
+        if response.status_code == 200:
+            parsed_response = response.json()
+            if raw:
+                return parsed_response
+            else:
+                return parsed_response.get('status') == 'SUCCESS'
+
+        
+
+    def dns_update(self, full_record_name, record_type, value=None, raw=False, **kwargs):
+        """
+            The command is intended to update an existing DNS record.
+            Only the credentials (API Key and Password), FullRecordName, Type and NewValue are required, all
+            other parameters are only needed if there is a risk of ambiguity, in particular when you have advanced
+            DNS record used for load balancing. We recommend to always passing as many optional parameters
+            as possible to avoid updating a different record from the one that you originally intended to
+        """
+
+        endpoint = '/Domain/DnsRecord/Update'
+
+        params = {
+            'FullRecordName' : full_record_name,
+            'Type': record_type,
+        }
+
+        params.update(kwargs)
+
+
+        if record_type not in VALID_DNS_RECORD_TYPES:
+            raise ValueError("Accepted values for this argument are: A, AAAA, DYNAMIC, CNAME, MX, SRV, TXT and NS")
+
+        if not value and record_type != 'DYNAMIC':
+            raise ValueError("All records except DYNAMIC must have their value")
+        
+        if record_type == 'DYNAMIC':
+            if not kwargs.has_key('DynDnsLogin') or not kwargs.has_key('DynDnsPassword'):
+                raise ValueError('DynDNS login and password are required when record type is DYNAMIC')
+
+        if value:
+            params['Value'] = value
+        
         response = self.__perform_get_request(endpoint, params)
 
         if response.status_code == 200:
