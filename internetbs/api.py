@@ -81,6 +81,7 @@ class ApiWrapper():
                 return parsed_response['product'][0]['status'] == 'SUCCESS'
 
     def domain_info(self, domain):
+
         """
             The command is intended to return full details about a domain name; it includes contact details,
             registrar lock status, private whois status, name servers and so on. 
@@ -96,4 +97,37 @@ class ApiWrapper():
         if response.status_code == 200:
             parsed_response = response.json()
             return parsed_response
+    
+    def host_create(self, host, ip_list, raw=True):
+        """
+            The command is intended to create a host also known as name server or child host.
+            
+            The host will be created under the same Registry the domain belongs to (.com host under .com
+            Registry, .net host under .net Registry, .biz host under .biz Registry and so on...).
+            
+            You do not need to create a host under a different Registry from the domain extension of the host
+            itself as we automatically create it whenever needed. For example you only need to create a host if
+            you wish to declare the new name server ns1.example.com under the .com Registry, while you can
+            freely use ns1.example.com under any other extension such as .uk or .biz or .info or .fr, etc...
+            
+            Note that if you are using existing hosts (name servers) already created by your hosting company or
+            another Registrar, you won’t need to create them again, actually you won’t even be able to create
+            them as you have no authority for the root domain. You can only create hosts for domains that belong
+            to you and are managed by us.
+        """
 
+        endpoint = '/Domain/Host/Create'
+
+        params = {
+            'Host' : host,
+            'IP_List' : ",".join(ip_list)
+        }
+
+        response = self.__perform_get_request(endpoint, params)
+
+        if response.status_code == 200:
+            parsed_response = response.json()
+            if raw:
+                return parsed_response
+            else:
+                return parsed_response.get('status') == 'SUCCESS'
