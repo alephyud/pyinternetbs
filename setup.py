@@ -2,13 +2,13 @@
 
 from setuptools import setup
 
-setup(name='yandex_pdd',
+setup(name='pyinternetbs',
       version='0.1',
       description='Internetbs Python API',
       url='http://github.com/alephyud/pyinternetbs',
       author='vmax@github',
       license='MIT',
-      packages=['pyinternetbs'],
+      packages=['internetbs'],
       install_requires=[
           'requests',
       ],
