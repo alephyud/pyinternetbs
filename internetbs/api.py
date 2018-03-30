@@ -233,7 +233,7 @@ class ApiWrapper():
 
         params.update(kwargs)
 
-        if record_type not in VALID_DNS_RECORD_TYPES:
+        if record_type not in self.VALID_DNS_RECORD_TYPES:
             raise ValueError("Accepted values for this argument are: A, AAAA, DYNAMIC, CNAME, MX, SRV, TXT and NS")
 
         if not value and record_type != 'DYNAMIC':
@@ -275,7 +275,7 @@ class ApiWrapper():
 
         params.update(kwargs)
 
-        if record_type not in VALID_DNS_RECORD_TYPES:
+        if record_type not in self.VALID_DNS_RECORD_TYPES:
             raise ValueError("Accepted values for this argument are: A, AAAA, DYNAMIC, CNAME, MX, SRV, TXT and NS")
 
         if value:
@@ -311,7 +311,7 @@ class ApiWrapper():
         params.update(kwargs)
 
 
-        if record_type not in VALID_DNS_RECORD_TYPES:
+        if record_type not in self.VALID_DNS_RECORD_TYPES:
             raise ValueError("Accepted values for this argument are: A, AAAA, DYNAMIC, CNAME, MX, SRV, TXT and NS")
 
         if not value and record_type != 'DYNAMIC':
